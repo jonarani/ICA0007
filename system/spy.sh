@@ -32,10 +32,9 @@ while IFS= read -r line; do
     echo -n "CPU: "
     
     # https://unix.stackexchange.com/questions/120570/how-can-i-monitor-cpu-usage-by-user/120581
-    # 2nd column - aggregated CPU ussage, 3rd column - normalized CPU usage
+    # 1st column - aggregated CPU ussage, 2nd column - normalized CPU usage
     (top -b -n 1 -u "$user" \
-        | awk -v CPUS=$cpus -v code="code" -v top="top" \
-            -v cpuCrit=$cpuCrit \
+        | awk -v CPUS=$cpus -v cpuCrit=$cpuCrit \
             'NR>7 {  
                 sum += $9; 
             } 
