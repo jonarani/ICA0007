@@ -35,38 +35,24 @@ while IFS= read -r line; do
     # print other user's CPU usage in parallel but skip own one because
     # spawning many processes will increase our CPU usage significantly
     # 1st column - username, 2nd column - aggregated CPU ussage, 3rd column - normalized CPU usage
-    if [[ "$me" == "$user" ]] ;
-    then
-        # ignores commands in top that are labeled "code" or "top"
-        (top -b -n 1 -u "$user" \
-            | awk -v CPUS=$cpus -v code="code" -v top="top" \
-                -v cpuCrit=$cpuCrit \
-                'NR>7 { 
-                    if ($12 != code && $12 != top ) 
-                        sum += $9; 
-                } 
-                END {
-                    normalized = sum/CPUS 
-                    if (normalized >= cpuCrit)
-                        print "\033[1;31m" sum, normalized "\033[0m"; 
-                    else
-                        print sum, normalized; 
-                }') &
-        sleep 0.05  # dont spawn too many processes in parallel
-    else
-        (top -b -n 1 -u "$user" \
-            | awk -v CPUS=$cpus -v cpuCrit=$cpuCrit\
-                'NR>7  { sum += $9; } 
-                END { 
-                    normalized = sum/CPUS
-                    if (normalized >= cpuCrit)
-                        print "\033[1;31m" sum, normalized "\033[0m"
-                    else
-                        print sum, normalized; 
-                }') &
-        # dont spawn too many processes in parallel
-        sleep 0.05
-    fi
+    # ignores commands in top that are labeled "code" or "top"
+    (top -b -n 1 -u "$user" \
+        | awk -v CPUS=$cpus -v code="code" -v top="top" \
+            -v cpuCrit=$cpuCrit -v me=$me -v user=$user \
+            'NR>7 { 
+                if (me != user) 
+                    sum += $9; 
+                else if(me == user && $12 != code && $12 != top)
+                    sum += $9;
+            } 
+            END {
+                normalized = sum/CPUS 
+                if (normalized >= cpuCrit)
+                    print "\033[1;31m" sum, normalized "\033[0m"; 
+                else
+                    print sum, normalized; 
+            }') &
+    sleep 0.05  # dont spawn too many processes in parallel
     wait
 
     echo -n "Memory usage: "
