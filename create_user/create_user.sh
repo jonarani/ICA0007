@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# example run: ./script1.sh -u test2 -k pub_test -e james@gmail.com -g grp1 grp2 grp3
+# example run: ./create_user.sh -u test2 -k pub_test -e james@gmail.com -g grp1 grp2 grp3
 
 show_help()
 {
