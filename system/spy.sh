@@ -5,11 +5,10 @@ cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')  # how many cpus does system 
 me=$(whoami)                                        # who is running this script
 total=$(free | awk '/Mem:/ { print $2 }')           # total RAM
 
-for line in "${people}";
-do
-    user=$(echo ${line} | awk '{print $1}')
-    ip=$(echo ${line} | awk '{print $2}')
-    
+while IFS= read -r line; do
+    user=$(echo "${line}" | awk '{print $1}')
+    ip=$(echo "${line}" | awk '{print $2}')
+
     echo "User: ${user}"
     echo "IP: ${ip}"
     echo -n "CPU: "
@@ -40,4 +39,4 @@ do
     ps hux -U $user | awk -v total=$total '{ sum += $6} END { printf "%.2f\n", sum / total * 100; }'
 
     echo
-done
+done <<< "$people"
