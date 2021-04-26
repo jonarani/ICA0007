@@ -2,6 +2,7 @@
 
 cpuCrit=${1}
 memCrit=${2}
+onlyIps=${3}
 
 if [ -z "$cpuCrit" ]
 then
@@ -22,19 +23,16 @@ while IFS= read -r line; do
     ip=$(echo "${line}" | awk '{print $2}')
     
     # if not IP pattern (for example if it is tmux(31632).%1 then continue)
-    if [[ !($ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$) ]]; then
+    if [[ "$onlyIps" && !($ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$) ]]; then
         continue
     fi
 
     echo "User: ${user}"
-    echo "IP: ${ip}"
+    echo "Connected from: ${ip}"
     echo -n "CPU: "
     
     # https://unix.stackexchange.com/questions/120570/how-can-i-monitor-cpu-usage-by-user/120581
-    # print other user's CPU usage in parallel but skip own one because
-    # spawning many processes will increase our CPU usage significantly
-    # 1st column - username, 2nd column - aggregated CPU ussage, 3rd column - normalized CPU usage
-    # ignores commands in top that are labeled "code" or "top"
+    # 2nd column - aggregated CPU ussage, 3rd column - normalized CPU usage
     (top -b -n 1 -u "$user" \
         | awk -v CPUS=$cpus -v code="code" -v top="top" \
             -v cpuCrit=$cpuCrit \
