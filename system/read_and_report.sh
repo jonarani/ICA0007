@@ -17,10 +17,13 @@ then
     exit
 fi
 
-people=$(cat users)                                 # users to check on
 cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')  # how many cpus does system have
 total=$(free | awk '/Mem:/ { print $2 }')           # total RAM
+
+input_path="/home/student/Documents/ICA0007/system/users"
 output_path="/home/student/Documents/ICA0007/system/output"
+
+people=$(cat ${input_path})                         # users to check on
 
 while IFS= read -r user; do 
 
