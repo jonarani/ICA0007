@@ -15,7 +15,6 @@ fi
 
 people=$(w -i | tail -n +3 | awk '{print $1,$3}')   # active users and their IPs
 cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')  # how many cpus does system have
-me=$(whoami)                                        # who is running this script
 total=$(free | awk '/Mem:/ { print $2 }')           # total RAM
 
 while IFS= read -r line; do
@@ -55,7 +54,7 @@ while IFS= read -r line; do
     echo -n "Memory usage: "
     # https://github.com/scaidermern/script-snippets/blob/master/showPerUserMem.sh
     ps hux -U $user \
-        | awk -v total=$total -v memCrit=$memCrit\
+        | awk -v total=$total -v memCrit=$memCrit \
             '{ sum += $6} 
             END {
                 mem = sum / total * 100
@@ -63,7 +62,6 @@ while IFS= read -r line; do
                     print "\033[1;31m" mem "\033[0m"
                 else
                     printf "%.2f\n", mem; 
-            }'
-
+            }'    
     echo
 done <<< "$people"
