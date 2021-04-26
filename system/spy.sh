@@ -1,5 +1,18 @@
 #!/bin/bash
 
+cpuCrit=${1}
+memCrit=${2}
+
+if [ -z "$cpuCrit" ]
+then
+    cpuCrit=90
+fi
+
+if [ -z "$memCrit" ]
+then
+    memCrit=50
+fi
+
 people=$(w -i | tail -n +3 | awk '{print $1,$3}')   # active users and their IPs
 cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')  # how many cpus does system have
 me=$(whoami)                                        # who is running this script
@@ -25,28 +38,32 @@ while IFS= read -r line; do
     if [[ "$me" == "$user" ]] ;
     then
         # ignores commands in top that are labeled "code" or "top"
-        (top -b -n 1 -u "$user" | awk -v CPUS=$cpus -v code="code" -v top="top" 'NR>7 { 
-                                                                                        if ($12 != code && $12 != top ) 
-                                                                                        sum += $9; 
-                                                                                    } 
-                                                                                    END {
-                                                                                        normalized = sum/CPUS 
-                                                                                        if (normalized >= 80)
-                                                                                            print "\033[1;31m" sum, normalized "\033[0m"; 
-                                                                                        else
-                                                                                            print sum, normalized; 
-                                                                                    }') &
-        # dont spawn too many processes in parallel
-        sleep 0.05
+        (top -b -n 1 -u "$user" \
+            | awk -v CPUS=$cpus -v code="code" -v top="top" \
+                -v cpuCrit=$cpuCrit \
+                'NR>7 { 
+                    if ($12 != code && $12 != top ) 
+                        sum += $9; 
+                } 
+                END {
+                    normalized = sum/CPUS 
+                    if (normalized >= cpuCrit)
+                        print "\033[1;31m" sum, normalized "\033[0m"; 
+                    else
+                        print sum, normalized; 
+                }') &
+        sleep 0.05  # dont spawn too many processes in parallel
     else
-        (top -b -n 1 -u "$user" | awk -v CPUS=$cpus 'NR>7  { sum += $9; } 
-                                                     END { 
-                                                        normalized = sum/CPUS
-                                                        if (normalized >= 80)
-                                                            print "\033[1;31m" sum, normalized "\033[0m"
-                                                        else
-                                                            print sum, normalized; 
-                                                     }') &
+        (top -b -n 1 -u "$user" \
+            | awk -v CPUS=$cpus -v cpuCrit=$cpuCrit\
+                'NR>7  { sum += $9; } 
+                END { 
+                    normalized = sum/CPUS
+                    if (normalized >= cpuCrit)
+                        print "\033[1;31m" sum, normalized "\033[0m"
+                    else
+                        print sum, normalized; 
+                }') &
         # dont spawn too many processes in parallel
         sleep 0.05
     fi
@@ -54,14 +71,16 @@ while IFS= read -r line; do
 
     echo -n "Memory usage: "
     # https://github.com/scaidermern/script-snippets/blob/master/showPerUserMem.sh
-    ps hux -U $user | awk -v total=$total '{ sum += $6} 
-                                           END {
-                                                mem = sum / total * 100
-                                                if (mem >= 50)
-                                                    print "\033[1;31m" mem "\033[0m"
-                                                else
-                                                    printf "%.2f\n", mem; 
-                                           }'
+    ps hux -U $user \
+        | awk -v total=$total -v memCrit=$memCrit\
+            '{ sum += $6} 
+            END {
+                mem = sum / total * 100
+                if (mem >= memCrit)
+                    print "\033[1;31m" mem "\033[0m"
+                else
+                    printf "%.2f\n", mem; 
+            }'
 
     echo
 done <<< "$people"
