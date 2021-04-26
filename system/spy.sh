@@ -38,12 +38,9 @@ while IFS= read -r line; do
     # ignores commands in top that are labeled "code" or "top"
     (top -b -n 1 -u "$user" \
         | awk -v CPUS=$cpus -v code="code" -v top="top" \
-            -v cpuCrit=$cpuCrit -v me=$me -v user=$user \
-            'NR>7 { 
-                if (me != user) 
-                    sum += $9; 
-                else if(me == user && $12 != code && $12 != top)
-                    sum += $9;
+            -v cpuCrit=$cpuCrit \
+            'NR>7 {  
+                sum += $9; 
             } 
             END {
                 normalized = sum/CPUS 
