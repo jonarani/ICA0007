@@ -4,7 +4,7 @@
 
 show_help()
 {
-    echo "-u <username> -k <abs_path_to_pub_file> -g <gr1 gr2 gr3>"
+    echo "-u <username> -k <abs_path_to_pub_file> -e <email> -g <gr1 gr2 gr3>"
 }
 
 while :; do
@@ -66,6 +66,8 @@ then
     exit 1
 fi
 
+sudo useradd ${username}
+
 groups=$(echo ${groups} | sed 's/ /,/g')
 
 password=$(openssl rand -base64 10)
@@ -74,9 +76,11 @@ sudo yes ${password} | sudo passwd ${username}
 
 sudo usermod -a -G ${groups} ${username}
 
+sudo mkdir /home/${username}
 sudo mkdir /home/${username}/.ssh
 sudo touch /home/${username}/.ssh/authorized_keys
 sudo chmod 777 /home/${username}/.ssh/authorized_keys
 sudo cat ${pubkey} >> /home/${username}/.ssh/authorized_keys
 
-sudo ../mail/send_mail.sh "Hello, this is your password: ${password}" ${email}
+email="TestingUserForLinux@gmail.com"
+sudo bash ../mail/send_mail.sh "Hello, this is your password: ${password}" ${email}
