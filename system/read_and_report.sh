@@ -20,8 +20,8 @@ fi
 cpus=$(lscpu | grep "^CPU(s):" | awk '{print $2}')  # how many cpus does system have
 total=$(free | awk '/Mem:/ { print $2 }')           # total RAM
 
-input_path="/home/student/Documents/ICA0007/system/users"
-output_path="/home/student/Documents/ICA0007/system/output"
+input_path="/home/jonathan/Documents/ShellScripts/ICA0007/system/users"   # "/home/student/Documents/ICA0007/system/users"
+output_path="/home/jonathan/Documents/ShellScripts/ICA0007/system/output" # "/home/student/Documents/ICA0007/system/output"
 
 people=$(cat ${input_path})                         # users to check on
 
