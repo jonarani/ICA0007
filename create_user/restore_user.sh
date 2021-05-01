@@ -3,4 +3,4 @@ user=${1}
 
 sudo useradd ${user}
 
-unzip -d / "${user}.zip"
+sudo unzip -d / "../../../../../${user}.zip"
