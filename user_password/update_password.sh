@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 password=$(openssl rand -base64 10)
 sudo yes "$password" | sudo passwd "$1"
 sudo chage -M 1 "$1"
