@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 while IFS="" read -r p || [ -n "$p" ];
 do
     echo "$p" | grep -Po "\b(\d|\.)+:[0-9]*(?= .*ssh)" > ip_to_check.temp
