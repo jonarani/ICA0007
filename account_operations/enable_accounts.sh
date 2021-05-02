@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 while IFS="" read -r p || [ -n "$p" ];
 do
     if id "$p" &>/dev/null; then
