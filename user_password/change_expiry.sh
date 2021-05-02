@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 # crontab task to check all user's passwords
 
