@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 timestamp() {
   date +'%d/%m/%Y_%H:%M:%S'
 }
